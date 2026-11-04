@@ -1,11 +1,17 @@
 // Real UPI Payment Service for Kumbh Ride
 
 const STORAGE_KEY = 'kumbh_upi_id';
-const DEFAULT_UPI_ID = 'sumitbhoyar2000-03@okicici';
-const DEFAULT_PAYEE_NAME = 'Kumbh Ride (Sumit Bhoyar)';
+export const DEFAULT_UPI_ID = 'sumitbhoyar2000-3@okicici';
+export const DEFAULT_PAYEE_NAME = 'Sumit Bhoyar';
 
 export function getReceiverUpiId(): string {
-  return localStorage.getItem(STORAGE_KEY) || DEFAULT_UPI_ID;
+  const stored = localStorage.getItem(STORAGE_KEY);
+  // Auto-migrate old typo with 03 if present in user's browser cache
+  if (stored === 'sumitbhoyar2000-03@okicici') {
+    localStorage.setItem(STORAGE_KEY, DEFAULT_UPI_ID);
+    return DEFAULT_UPI_ID;
+  }
+  return stored || DEFAULT_UPI_ID;
 }
 
 export function setReceiverUpiId(id: string): void {
@@ -26,7 +32,7 @@ export interface UpiPaymentDetails {
 
 /**
  * Standard NPCI UPI URI Scheme
- * Example: upi://pay?pa=sumitbhoyar2000-03@okicici&pn=Kumbh%20Ride&am=300&tn=Ride%20Booking&cu=INR
+ * Example: upi://pay?pa=sumitbhoyar2000-3@okicici&pn=Sumit%20Bhoyar&am=300&tn=Ride%20Booking&cu=INR
  */
 export function buildUpiUri(details: UpiPaymentDetails): string {
   const pa = details.upiId || getReceiverUpiId();
@@ -52,4 +58,3 @@ export function buildPhonePeIntent(details: UpiPaymentDetails): string {
 export function buildPaytmIntent(details: UpiPaymentDetails): string {
   return buildUpiUri(details);
 }
-

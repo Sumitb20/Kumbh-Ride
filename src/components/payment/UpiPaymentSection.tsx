@@ -2,12 +2,10 @@ import { useState } from 'react';
 import {
   Copy,
   Check,
-  Smartphone,
   CheckCircle2,
   QrCode,
   ShieldCheck,
-  CreditCard,
-  Download,
+  ExternalLink,
 } from 'lucide-react';
 import { getReceiverUpiId, buildUpiUri } from '../../services/upi';
 
@@ -29,7 +27,7 @@ export function UpiPaymentSection({
   const upiId = getReceiverUpiId();
   const [copied, setCopied] = useState(false);
   const [utrNumber, setUtrNumber] = useState('');
-  const [viewMode, setViewMode] = useState<'qr' | 'apps'>('qr');
+  const [qrType, setQrType] = useState<'square' | 'card'>('square');
 
   const upiUri = buildUpiUri({
     upiId,
@@ -77,7 +75,7 @@ export function UpiPaymentSection({
       <div className="p-3.5 bg-orange-50/70 border border-orange-200 rounded-2xl flex items-center justify-between">
         <div className="space-y-0.5">
           <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">
-            UPI ID (GPay / PhonePe / Paytm)
+            Verified UPI ID (GPay / PhonePe / Paytm)
           </span>
           <p className="font-mono text-xs sm:text-sm font-bold text-kumbh-deep select-all">
             {upiId}
@@ -93,13 +91,41 @@ export function UpiPaymentSection({
         </button>
       </div>
 
+      {/* QR Code Style Selector */}
+      <div className="flex items-center justify-center gap-2">
+        <button
+          type="button"
+          onClick={() => setQrType('square')}
+          className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+            qrType === 'square'
+              ? 'bg-kumbh-orange text-white shadow-sm'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          Square QR Code
+        </button>
+        <button
+          type="button"
+          onClick={() => setQrType('card')}
+          className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+            qrType === 'card'
+              ? 'bg-kumbh-orange text-white shadow-sm'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          Full Google Pay Card
+        </button>
+      </div>
+
       {/* Official Uploaded QR Code Display */}
       <div className="flex flex-col items-center text-center space-y-3 pt-1">
-        <div className="relative p-3 bg-white rounded-3xl shadow-md border-2 border-orange-100 inline-block">
+        <div className="relative p-2 bg-white rounded-3xl shadow-md border-2 border-orange-100 inline-block overflow-hidden max-w-full">
           <img
-            src="./sumit-upi-qr.jpg"
-            alt="Sumit Bhoyar Google Pay QR Code"
-            className="w-56 h-56 rounded-2xl object-contain"
+            src={qrType === 'square' ? './sumit-upi-qr.jpg' : './sumit-gpay-card.jpg'}
+            alt="Sumit Bhoyar Google Pay UPI QR"
+            className={`${
+              qrType === 'square' ? 'w-56 h-56 object-contain' : 'w-64 max-h-80 object-contain'
+            } rounded-2xl`}
           />
         </div>
         <div className="space-y-0.5">
@@ -158,14 +184,14 @@ export function UpiPaymentSection({
       <div className="pt-3 border-t border-gray-100 space-y-3">
         <div>
           <label className="text-[11px] font-semibold text-gray-500 block mb-1">
-            UPI UTR / Reference No. (Optional for testing):
+            UPI UTR / Reference No. (Optional for testing)
           </label>
           <input
             type="text"
             value={utrNumber}
             onChange={(e) => setUtrNumber(e.target.value)}
-            placeholder="12-digit UPI reference number from your app"
-            className="w-full px-3 py-2 text-xs font-mono bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-kumbh-orange"
+            placeholder="e.g. 431289123456"
+            className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-kumbh-orange"
           />
         </div>
 
@@ -173,23 +199,24 @@ export function UpiPaymentSection({
           type="button"
           onClick={handleConfirmPaid}
           disabled={isProcessing}
-          className="btn-primary w-full flex items-center justify-center gap-2 py-3.5 shadow-lg shadow-orange-500/25"
+          className="btn-primary w-full py-3.5 flex items-center justify-center gap-2 text-sm shadow-md"
         >
           {isProcessing ? (
-            <>
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              <span>Verifying Payment...</span>
-            </>
+            <span className="flex items-center gap-2">
+              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              Verifying Payment...
+            </span>
           ) : (
             <>
               <CheckCircle2 size={18} />
-              <span>I Have Paid ₹{amount.toLocaleString('en-IN')} (Get Ticket)</span>
+              <span>I Have Paid ₹{amount.toLocaleString('en-IN')}</span>
             </>
           )}
         </button>
 
-        <p className="text-[10px] text-center text-gray-400">
-          Direct instant payment into Sumit Bhoyar's ICICI account via {upiId}
+        <p className="text-[11px] text-center text-gray-400 flex items-center justify-center gap-1">
+          <ShieldCheck size={13} className="text-green-600" />
+          Instant verification & instant boarding pass issue
         </p>
       </div>
     </div>
