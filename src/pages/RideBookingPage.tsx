@@ -35,6 +35,7 @@ import {
 } from '../data/routesData';
 import { isShahiSnanDate, getShahiSnanName, shahiSnanDates } from '../data/shahiSnanDates';
 import { RideWizardState, RideBooking, PaymentMethod } from '../types';
+import { openRazorpayCheckout, getRazorpayKey } from '../services/razorpay';
 
 export function RideBookingPage() {
   const { lang, t } = useLanguage();
@@ -120,6 +121,51 @@ export function RideBookingPage() {
         setStep(9);
       }
     }, 1500);
+  };
+
+  const handleRazorpay = () => {
+    setPaymentStatus('processing');
+    openRazorpayCheckout({
+      amount: totalFare,
+      description: `Ride: ${getRouteName(selectedRoute, lang).from} ↔ ${getRouteName(selectedRoute, lang).to}`,
+      customerName: wizard.customerName,
+      customerPhone: wizard.customerPhone,
+      customerEmail: wizard.customerEmail,
+      onSuccess: (paymentId) => {
+        const ref = `RZP-${paymentId.slice(-8).toUpperCase()}`;
+        const booking: RideBooking = {
+          id: crypto.randomUUID(),
+          type: 'ride',
+          routeId: wizard.routeId,
+          vehicleId: wizard.vehicleId,
+          journeyDate: wizard.journeyDate,
+          pickupTime: wizard.pickupTime,
+          returnTime: wizard.returnTime,
+          passengers: wizard.passengers,
+          vehiclesNeeded,
+          customerName: wizard.customerName,
+          customerPhone: wizard.customerPhone,
+          customerEmail: wizard.customerEmail,
+          totalFare,
+          status: 'upcoming',
+          paymentStatus: 'success',
+          paymentMethod: 'upi',
+          bookingRef: ref,
+          createdAt: new Date().toISOString(),
+        };
+        addBooking(booking);
+        setConfirmedBooking(booking);
+        setPaymentStatus('success');
+        setStep(9);
+      },
+      onFailure: (err) => {
+        setPaymentStatus('failed');
+        console.error('Razorpay Error:', err);
+      },
+      onDismiss: () => {
+        setPaymentStatus('idle');
+      },
+    });
   };
 
   const stepTitles = [
@@ -669,6 +715,37 @@ export function RideBookingPage() {
             <p className="text-xs text-gray-500 mt-1">
               {wizard.passengers} {t('common.person')} • {getVehicleName(selectedVehicle, lang)}
             </p>
+          </div>
+
+          {/* Razorpay Gateway Card */}
+          <div className="card p-4 border-2 border-blue-200 bg-gradient-to-r from-blue-50/50 to-indigo-50/40 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="font-extrabold text-blue-900 text-sm tracking-wide">Razorpay</span>
+                <span className="text-[10px] font-bold bg-blue-600 text-white px-2 py-0.5 rounded-full">
+                  DEVELOPER / TEST MODE
+                </span>
+              </div>
+              <span className="text-[11px] text-blue-700 font-medium">Real Checkout Flow</span>
+            </div>
+            <p className="text-xs text-blue-800">
+              Opens the authentic Razorpay checkout popup supporting UPI (GPay/PhonePe), test cards, and Net Banking.
+            </p>
+            <button
+              type="button"
+              onClick={handleRazorpay}
+              disabled={paymentStatus === 'processing'}
+              className="w-full py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all"
+            >
+              <Smartphone size={18} />
+              <span>Pay ₹{totalFare.toLocaleString('en-IN')} with Razorpay</span>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 my-2">
+            <div className="h-px bg-gray-200 flex-1" />
+            <span className="text-[11px] font-semibold text-gray-400 uppercase">OR QUICK DEMO</span>
+            <div className="h-px bg-gray-200 flex-1" />
           </div>
 
           {/* Payment Method Selector */}

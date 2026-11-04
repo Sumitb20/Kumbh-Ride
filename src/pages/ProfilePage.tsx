@@ -19,7 +19,9 @@ import {
   Save,
   Check,
   X,
+  CreditCard,
 } from 'lucide-react';
+import { getRazorpayKey, setRazorpayKey } from '../services/razorpay';
 
 interface Profile {
   name: string;
@@ -44,6 +46,8 @@ const ProfilePage: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editProfile, setEditProfile] = useState<Profile>(defaultProfile);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  const [rzpKey, setRzpKey] = useState<string>(getRazorpayKey());
+  const [keySaved, setKeySaved] = useState(false);
 
   // Load profile from localStorage
   useEffect(() => {
@@ -273,6 +277,69 @@ const ProfilePage: React.FC = () => {
             </button>
           </>
         )}
+
+        <div className="h-px bg-gray-100 mx-5" />
+
+        {/* Razorpay Developer Mode */}
+        <div>
+          <button
+            onClick={() => toggleSection('razorpay')}
+            className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors min-h-[52px]"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
+                <CreditCard size={18} className="text-blue-600" />
+              </div>
+              <div className="text-left">
+                <span className="text-sm font-medium text-kumbh-text block">
+                  Razorpay Developer Gateway
+                </span>
+                <span className="text-[11px] text-blue-600 font-mono">
+                  {rzpKey.slice(0, 14)}...
+                </span>
+              </div>
+            </div>
+            {expandedSection === 'razorpay' ? (
+              <ChevronDown size={18} className="text-gray-400" />
+            ) : (
+              <ChevronRight size={18} className="text-gray-400" />
+            )}
+          </button>
+
+          {expandedSection === 'razorpay' && (
+            <div className="px-5 pb-4 space-y-3 animate-fade-in">
+              <div className="bg-blue-50/70 border border-blue-200 rounded-xl p-3.5 space-y-2 text-xs">
+                <p className="font-semibold text-blue-950">
+                  Razorpay Test Key (rzp_test_...)
+                </p>
+                <p className="text-blue-800 leading-relaxed">
+                  Enter your Razorpay Test Key ID to connect your real Razorpay sandbox. Leave empty to use the default test sandbox.
+                </p>
+                <input
+                  type="text"
+                  value={rzpKey}
+                  onChange={(e) => {
+                    setRzpKey(e.target.value);
+                    setKeySaved(false);
+                  }}
+                  placeholder="rzp_test_..."
+                  className="w-full px-3 py-2 bg-white rounded-lg border border-blue-300 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRazorpayKey(rzpKey);
+                    setKeySaved(true);
+                    setTimeout(() => setKeySaved(false), 2500);
+                  }}
+                  className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-xs transition-colors"
+                >
+                  {keySaved ? 'Saved Successfully! ✓' : 'Save Razorpay Key'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         <div className="h-px bg-gray-100 mx-5" />
 

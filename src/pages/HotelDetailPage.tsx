@@ -26,6 +26,7 @@ import {
   getAmenityName,
 } from '../data/hotelsData';
 import { HotelBooking, PaymentMethod } from '../types';
+import { openRazorpayCheckout } from '../services/razorpay';
 
 export function HotelDetailPage() {
   const { hotelId } = useParams<{ hotelId: string }>();
@@ -108,6 +109,55 @@ export function HotelDetailPage() {
         setPaymentStatus('success');
       }
     }, 1500);
+  };
+
+  const handleRazorpay = () => {
+    if (!customerName.trim() || !customerPhone.trim()) {
+      alert('Please enter your name and phone number');
+      return;
+    }
+
+    setPaymentStatus('processing');
+    openRazorpayCheckout({
+      amount: totalAmount,
+      description: `Hotel Stay: ${getHotelName(hotel, lang)} (${nights} Nights)`,
+      customerName,
+      customerPhone,
+      customerEmail,
+      onSuccess: (paymentId) => {
+        const ref = `RZP-${paymentId.slice(-8).toUpperCase()}`;
+        const booking: HotelBooking = {
+          id: crypto.randomUUID(),
+          type: 'hotel',
+          hotelId: hotel.id,
+          roomId: selectedRoom.id,
+          checkIn,
+          checkOut,
+          guests,
+          rooms: roomsCount,
+          nights,
+          customerName,
+          customerPhone,
+          customerEmail,
+          totalFare: totalAmount,
+          status: 'upcoming',
+          paymentStatus: 'success',
+          paymentMethod: 'upi',
+          bookingRef: ref,
+          createdAt: new Date().toISOString(),
+        };
+        addBooking(booking);
+        setConfirmedBooking(booking);
+        setPaymentStatus('success');
+      },
+      onFailure: (err) => {
+        setPaymentStatus('failed');
+        console.error('Razorpay Error:', err);
+      },
+      onDismiss: () => {
+        setPaymentStatus('idle');
+      },
+    });
   };
 
   return (
@@ -339,6 +389,34 @@ export function HotelDetailPage() {
                 ₹{totalAmount.toLocaleString('en-IN')}
               </p>
             </div>
+          </div>
+
+          {/* Razorpay Gateway Card */}
+          <div className="card p-3.5 border-2 border-blue-200 bg-gradient-to-r from-blue-50/50 to-indigo-50/40 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="font-extrabold text-blue-900 text-xs tracking-wide">Razorpay</span>
+                <span className="text-[10px] font-bold bg-blue-600 text-white px-2 py-0.5 rounded-full">
+                  DEVELOPER / TEST MODE
+                </span>
+              </div>
+              <span className="text-[10px] text-blue-700 font-medium">Real Checkout</span>
+            </div>
+            <button
+              type="button"
+              onClick={handleRazorpay}
+              disabled={paymentStatus === 'processing'}
+              className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all"
+            >
+              <Smartphone size={16} />
+              <span>Pay ₹{totalAmount.toLocaleString('en-IN')} with Razorpay</span>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 my-1">
+            <div className="h-px bg-gray-200 flex-1" />
+            <span className="text-[10px] font-semibold text-gray-400 uppercase">OR QUICK DEMO</span>
+            <div className="h-px bg-gray-200 flex-1" />
           </div>
 
           {/* Payment Method Selector */}
