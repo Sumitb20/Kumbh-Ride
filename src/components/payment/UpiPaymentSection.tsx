@@ -95,16 +95,16 @@ export function UpiPaymentSection({
 
       {/* Official Uploaded QR Code Display */}
       <div className="flex flex-col items-center text-center space-y-3 pt-1">
-        <div className="relative p-2 bg-white rounded-2xl shadow-md border border-gray-200 inline-block">
+        <div className="relative p-3 bg-white rounded-3xl shadow-md border-2 border-orange-100 inline-block">
           <img
             src="./sumit-upi-qr.jpg"
             alt="Sumit Bhoyar Google Pay QR Code"
-            className="w-56 h-auto rounded-xl object-contain"
+            className="w-56 h-56 rounded-2xl object-contain"
           />
         </div>
         <div className="space-y-0.5">
           <p className="text-xs font-bold text-kumbh-text">
-            Scan to pay ₹{amount.toLocaleString('en-IN')}
+            Sumit Bhoyar • Scan to pay ₹{amount.toLocaleString('en-IN')}
           </p>
           <p className="text-[11px] text-gray-500">
             Works with Google Pay, PhonePe, Paytm, BHIM, or any UPI App
