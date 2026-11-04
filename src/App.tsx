@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { LanguageProvider } from './context/LanguageContext';
 import { BookingProvider } from './context/BookingContext';
 import { PWAProvider } from './context/PWAContext';
@@ -12,7 +12,7 @@ import { ProfilePage } from './pages/ProfilePage';
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <LanguageProvider>
         <BookingProvider>
           <PWAProvider>
@@ -29,7 +29,7 @@ export default function App() {
           </PWAProvider>
         </BookingProvider>
       </LanguageProvider>
-    </BrowserRouter>
+    </Router>
   );
 }
 
