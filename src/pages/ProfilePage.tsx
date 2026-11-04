@@ -22,6 +22,7 @@ import {
   CreditCard,
 } from 'lucide-react';
 import { getRazorpayKey, setRazorpayKey } from '../services/razorpay';
+import { getReceiverUpiId, setReceiverUpiId } from '../services/upi';
 
 interface Profile {
   name: string;
@@ -48,6 +49,8 @@ const ProfilePage: React.FC = () => {
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [rzpKey, setRzpKey] = useState<string>(getRazorpayKey());
   const [keySaved, setKeySaved] = useState(false);
+  const [upiReceiver, setUpiReceiver] = useState<string>(getReceiverUpiId());
+  const [upiSaved, setUpiSaved] = useState(false);
 
   // Load profile from localStorage
   useEffect(() => {
@@ -277,6 +280,69 @@ const ProfilePage: React.FC = () => {
             </button>
           </>
         )}
+
+        <div className="h-px bg-gray-100 mx-5" />
+
+        {/* Live UPI Payment ID */}
+        <div>
+          <button
+            onClick={() => toggleSection('upi')}
+            className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors min-h-[52px]"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-orange-100 flex items-center justify-center">
+                <span className="font-extrabold text-kumbh-deep text-xs">UPI</span>
+              </div>
+              <div className="text-left">
+                <span className="text-sm font-medium text-kumbh-text block">
+                  Live UPI Receiver ID
+                </span>
+                <span className="text-[11px] text-kumbh-orange font-mono">
+                  {upiReceiver}
+                </span>
+              </div>
+            </div>
+            {expandedSection === 'upi' ? (
+              <ChevronDown size={18} className="text-gray-400" />
+            ) : (
+              <ChevronRight size={18} className="text-gray-400" />
+            )}
+          </button>
+
+          {expandedSection === 'upi' && (
+            <div className="px-5 pb-4 space-y-3 animate-fade-in">
+              <div className="bg-orange-50/70 border border-orange-200 rounded-xl p-3.5 space-y-2 text-xs">
+                <p className="font-semibold text-kumbh-deep">
+                  Receiver Google Pay / PhonePe UPI ID
+                </p>
+                <p className="text-gray-600 leading-relaxed">
+                  All customer ride and hotel payments will be credited directly to this UPI address via QR code and 1-tap UPI app intents.
+                </p>
+                <input
+                  type="text"
+                  value={upiReceiver}
+                  onChange={(e) => {
+                    setUpiReceiver(e.target.value);
+                    setUpiSaved(false);
+                  }}
+                  placeholder="yourname@okbank"
+                  className="w-full px-3 py-2 bg-white rounded-lg border border-orange-300 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-kumbh-orange"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setReceiverUpiId(upiReceiver);
+                    setUpiSaved(true);
+                    setTimeout(() => setUpiSaved(false), 2500);
+                  }}
+                  className="btn-primary w-full py-2 text-xs"
+                >
+                  {upiSaved ? 'Saved Successfully! ✓' : 'Save UPI ID'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         <div className="h-px bg-gray-100 mx-5" />
 

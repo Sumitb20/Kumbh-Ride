@@ -27,6 +27,7 @@ import {
 } from '../data/hotelsData';
 import { HotelBooking, PaymentMethod } from '../types';
 import { openRazorpayCheckout } from '../services/razorpay';
+import { UpiPaymentSection } from '../components/payment/UpiPaymentSection';
 
 export function HotelDetailPage() {
   const { hotelId } = useParams<{ hotelId: string }>();
@@ -109,6 +110,41 @@ export function HotelDetailPage() {
         setPaymentStatus('success');
       }
     }, 1500);
+  };
+
+  const handleUpiComplete = (txnId: string) => {
+    if (!customerName.trim() || !customerPhone.trim()) {
+      alert('Please enter your name and phone number');
+      return;
+    }
+
+    setPaymentStatus('processing');
+    setTimeout(() => {
+      const ref = `UPI-${txnId.slice(-8).toUpperCase()}`;
+      const booking: HotelBooking = {
+        id: crypto.randomUUID(),
+        type: 'hotel',
+        hotelId: hotel.id,
+        roomId: selectedRoom.id,
+        checkIn,
+        checkOut,
+        guests,
+        rooms: roomsCount,
+        nights,
+        customerName,
+        customerPhone,
+        customerEmail,
+        totalFare: totalAmount,
+        status: 'upcoming',
+        paymentStatus: 'success',
+        paymentMethod: 'upi',
+        bookingRef: ref,
+        createdAt: new Date().toISOString(),
+      };
+      addBooking(booking);
+      setConfirmedBooking(booking);
+      setPaymentStatus('success');
+    }, 1200);
   };
 
   const handleRazorpay = () => {
@@ -391,111 +427,55 @@ export function HotelDetailPage() {
             </div>
           </div>
 
-          {/* Razorpay Gateway Card */}
-          <div className="card p-3.5 border-2 border-blue-200 bg-gradient-to-r from-blue-50/50 to-indigo-50/40 space-y-2.5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-blue-900 text-xs tracking-wide">Razorpay</span>
-                <span className="text-[10px] font-bold bg-blue-600 text-white px-2 py-0.5 rounded-full">
-                  DEVELOPER / TEST MODE
-                </span>
-              </div>
-              <span className="text-[10px] text-blue-700 font-medium">Real Checkout</span>
-            </div>
-            <button
-              type="button"
-              onClick={handleRazorpay}
-              disabled={paymentStatus === 'processing'}
-              className="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all"
-            >
-              <Smartphone size={16} />
-              <span>Pay ₹{totalAmount.toLocaleString('en-IN')} with Razorpay</span>
-            </button>
-          </div>
+          {/* Real Direct UPI Section */}
+          <UpiPaymentSection
+            amount={totalAmount}
+            bookingRef={`HT${Math.floor(1000 + Math.random() * 9000)}`}
+            description={`Hotel: ${getHotelName(hotel, lang)} (${nights} Nights)`}
+            onPaymentComplete={handleUpiComplete}
+            isProcessing={paymentStatus === 'processing'}
+          />
 
-          <div className="flex items-center gap-2 my-1">
-            <div className="h-px bg-gray-200 flex-1" />
-            <span className="text-[10px] font-semibold text-gray-400 uppercase">OR QUICK DEMO</span>
-            <div className="h-px bg-gray-200 flex-1" />
-          </div>
-
-          {/* Payment Method Selector */}
-          <div className="space-y-2 pt-2 border-t border-gray-100">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-gray-600">{t('payment.selectMethod')}</span>
-              <span className="badge-demo text-[10px]">DEMO MODE</span>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => setPaymentMethod('upi')}
-                className={`p-2.5 rounded-xl text-center border text-xs font-semibold transition-all ${
-                  paymentMethod === 'upi'
-                    ? 'border-kumbh-orange bg-orange-50 text-kumbh-deep'
-                    : 'border-gray-200 bg-white'
-                }`}
-              >
-                UPI
-              </button>
-              <button
-                type="button"
-                onClick={() => setPaymentMethod('card')}
-                className={`p-2.5 rounded-xl text-center border text-xs font-semibold transition-all ${
-                  paymentMethod === 'card'
-                    ? 'border-kumbh-orange bg-orange-50 text-kumbh-deep'
-                    : 'border-gray-200 bg-white'
-                }`}
-              >
-                Card
-              </button>
-              <button
-                type="button"
-                onClick={() => setPaymentMethod('netbanking')}
-                className={`p-2.5 rounded-xl text-center border text-xs font-semibold transition-all ${
-                  paymentMethod === 'netbanking'
-                    ? 'border-kumbh-orange bg-orange-50 text-kumbh-deep'
-                    : 'border-gray-200 bg-white'
-                }`}
-              >
-                NetBanking
-              </button>
-            </div>
-
-            {/* Simulate Failure Switch */}
-            <div className="flex items-center justify-between text-xs text-gray-500 pt-1">
-              <span>{t('payment.simulateFailure')}</span>
-              <input
-                type="checkbox"
-                checked={simulateFailure}
-                onChange={(e) => setSimulateFailure(e.target.checked)}
-                className="rounded text-kumbh-orange focus:ring-kumbh-orange"
-              />
-            </div>
-
-            {paymentStatus === 'failed' && (
-              <div className="p-2.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800">
-                Payment simulation failed. Uncheck the failure toggle and retry.
-              </div>
-            )}
-          </div>
-
-          <button
-            onClick={handlePay}
-            disabled={paymentStatus === 'processing'}
-            className="btn-primary w-full flex items-center justify-center gap-2"
-          >
-            {paymentStatus === 'processing' ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>{t('payment.processing')}</span>
-              </>
-            ) : (
-              <span>
-                {t('payment.pay')} ₹{totalAmount.toLocaleString('en-IN')}
+          {/* Collapsible Alternative Options */}
+          <div className="pt-2 space-y-2.5">
+            <div className="flex items-center gap-2">
+              <div className="h-px bg-gray-200 flex-1" />
+              <span className="text-[10px] font-semibold text-gray-400 uppercase">
+                Alternative: Razorpay / Demo
               </span>
-            )}
-          </button>
+              <div className="h-px bg-gray-200 flex-1" />
+            </div>
+
+            <div className="card p-3 border border-blue-200 bg-blue-50/30 flex items-center justify-between">
+              <div>
+                <span className="font-extrabold text-blue-900 text-xs">Razorpay Gateway</span>
+                <p className="text-[10px] text-gray-500">Cards & Net Banking popup</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleRazorpay}
+                disabled={paymentStatus === 'processing'}
+                className="py-1.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm transition-all"
+              >
+                Open Razorpay
+              </button>
+            </div>
+
+            <div className="card p-3 bg-gray-50 border border-gray-200 flex items-center justify-between">
+              <div>
+                <span className="font-bold text-gray-700 text-xs">Quick Simulation</span>
+                <p className="text-[10px] text-gray-400">Instant test without payment</p>
+              </div>
+              <button
+                type="button"
+                onClick={handlePay}
+                disabled={paymentStatus === 'processing'}
+                className="btn-secondary text-xs py-1.5 px-3"
+              >
+                Auto-Pass Demo
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

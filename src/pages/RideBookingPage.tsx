@@ -36,6 +36,7 @@ import {
 import { isShahiSnanDate, getShahiSnanName, shahiSnanDates } from '../data/shahiSnanDates';
 import { RideWizardState, RideBooking, PaymentMethod } from '../types';
 import { openRazorpayCheckout, getRazorpayKey } from '../services/razorpay';
+import { UpiPaymentSection } from '../components/payment/UpiPaymentSection';
 
 export function RideBookingPage() {
   const { lang, t } = useLanguage();
@@ -121,6 +122,37 @@ export function RideBookingPage() {
         setStep(9);
       }
     }, 1500);
+  };
+
+  const handleUpiComplete = (txnId: string) => {
+    setPaymentStatus('processing');
+    setTimeout(() => {
+      const ref = `UPI-${txnId.slice(-8).toUpperCase()}`;
+      const booking: RideBooking = {
+        id: crypto.randomUUID(),
+        type: 'ride',
+        routeId: wizard.routeId,
+        vehicleId: wizard.vehicleId,
+        journeyDate: wizard.journeyDate,
+        pickupTime: wizard.pickupTime,
+        returnTime: wizard.returnTime,
+        passengers: wizard.passengers,
+        vehiclesNeeded,
+        customerName: wizard.customerName,
+        customerPhone: wizard.customerPhone,
+        customerEmail: wizard.customerEmail,
+        totalFare,
+        status: 'upcoming',
+        paymentStatus: 'success',
+        paymentMethod: 'upi',
+        bookingRef: ref,
+        createdAt: new Date().toISOString(),
+      };
+      addBooking(booking);
+      setConfirmedBooking(booking);
+      setPaymentStatus('success');
+      setStep(9);
+    }, 1200);
   };
 
   const handleRazorpay = () => {
@@ -695,167 +727,74 @@ export function RideBookingPage() {
         </div>
       )}
 
-      {/* STEP 8: Demo Payment */}
+      {/* STEP 8: Payment */}
       {step === 8 && (
         <div className="space-y-4 animate-fade-in">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold text-kumbh-text">{t('payment.title')}</h2>
-              <p className="text-xs text-gray-500">Simulated payment gateway</p>
+              <p className="text-xs text-gray-500">Pay via Google Pay, PhonePe, Paytm or UPI QR</p>
             </div>
-            <span className="badge-demo text-[10px]">DEMO MODE</span>
+            <span className="badge-demo text-[10px] bg-green-100 text-green-800 border-green-200">
+              REAL UPI LIVE
+            </span>
           </div>
 
-          {/* Amount Display */}
-          <div className="card p-5 text-center bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200">
-            <span className="text-xs text-gray-500">{t('payment.totalAmount')}</span>
-            <p className="text-3xl font-extrabold text-kumbh-orange mt-1">
-              ₹{totalFare.toLocaleString('en-IN')}
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              {wizard.passengers} {t('common.person')} • {getVehicleName(selectedVehicle, lang)}
-            </p>
-          </div>
+          {/* Real Direct UPI Section */}
+          <UpiPaymentSection
+            amount={totalFare}
+            bookingRef={`RD${Math.floor(1000 + Math.random() * 9000)}`}
+            description={`Ride: ${getRouteName(selectedRoute, lang).from} ↔ ${getRouteName(selectedRoute, lang).to}`}
+            onPaymentComplete={handleUpiComplete}
+            isProcessing={paymentStatus === 'processing'}
+          />
 
-          {/* Razorpay Gateway Card */}
-          <div className="card p-4 border-2 border-blue-200 bg-gradient-to-r from-blue-50/50 to-indigo-50/40 space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-blue-900 text-sm tracking-wide">Razorpay</span>
-                <span className="text-[10px] font-bold bg-blue-600 text-white px-2 py-0.5 rounded-full">
-                  DEVELOPER / TEST MODE
-                </span>
-              </div>
-              <span className="text-[11px] text-blue-700 font-medium">Real Checkout Flow</span>
+          {/* Collapsible Alternative Options (Razorpay & Demo) */}
+          <div className="pt-2 space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="h-px bg-gray-200 flex-1" />
+              <span className="text-[11px] font-semibold text-gray-400 uppercase">
+                Alternative: Razorpay / Demo Card
+              </span>
+              <div className="h-px bg-gray-200 flex-1" />
             </div>
-            <p className="text-xs text-blue-800">
-              Opens the authentic Razorpay checkout popup supporting UPI (GPay/PhonePe), test cards, and Net Banking.
-            </p>
-            <button
-              type="button"
-              onClick={handleRazorpay}
-              disabled={paymentStatus === 'processing'}
-              className="w-full py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all"
-            >
-              <Smartphone size={18} />
-              <span>Pay ₹{totalFare.toLocaleString('en-IN')} with Razorpay</span>
-            </button>
-          </div>
 
-          <div className="flex items-center gap-2 my-2">
-            <div className="h-px bg-gray-200 flex-1" />
-            <span className="text-[11px] font-semibold text-gray-400 uppercase">OR QUICK DEMO</span>
-            <div className="h-px bg-gray-200 flex-1" />
-          </div>
-
-          {/* Payment Method Selector */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-gray-600 block">{t('payment.selectMethod')}</label>
-
-            <button
-              type="button"
-              onClick={() => setPaymentMethod('upi')}
-              className={`w-full card p-4 flex items-center justify-between text-left transition-all border-2 ${
-                paymentMethod === 'upi' ? 'border-kumbh-orange bg-orange-50/30' : 'border-gray-200'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center">
-                  <Smartphone size={20} />
-                </div>
-                <div>
-                  <p className="font-bold text-sm text-kumbh-text">{t('payment.upi')}</p>
-                  <p className="text-xs text-gray-500">GPay, PhonePe, Paytm, BHIM</p>
-                </div>
+            {/* Razorpay Gateway Card */}
+            <div className="card p-3.5 border border-blue-200 bg-blue-50/30 flex items-center justify-between">
+              <div>
+                <span className="font-extrabold text-blue-900 text-xs">Razorpay Gateway</span>
+                <p className="text-[11px] text-gray-500">Cards & Net Banking modal</p>
               </div>
-              <span className="text-xs font-mono text-gray-400">demo@kumbhride</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setPaymentMethod('card')}
-              className={`w-full card p-4 flex items-center justify-between text-left transition-all border-2 ${
-                paymentMethod === 'card' ? 'border-kumbh-orange bg-orange-50/30' : 'border-gray-200'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
-                  <CreditCard size={20} />
-                </div>
-                <div>
-                  <p className="font-bold text-sm text-kumbh-text">{t('payment.card')}</p>
-                  <p className="text-xs text-gray-500">Visa, Mastercard, RuPay</p>
-                </div>
-              </div>
-              <span className="text-xs text-gray-400">•••• 4242</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setPaymentMethod('netbanking')}
-              className={`w-full card p-4 flex items-center justify-between text-left transition-all border-2 ${
-                paymentMethod === 'netbanking' ? 'border-kumbh-orange bg-orange-50/30' : 'border-gray-200'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                  <Building size={20} />
-                </div>
-                <div>
-                  <p className="font-bold text-sm text-kumbh-text">{t('payment.netBanking')}</p>
-                  <p className="text-xs text-gray-500">SBI, HDFC, ICICI, Axis Bank</p>
-                </div>
-              </div>
-              <span className="text-xs text-gray-400">50+ Banks</span>
-            </button>
-          </div>
-
-          {/* Simulate Failure Switch */}
-          <div className="card p-3 bg-gray-50 flex items-center justify-between text-xs">
-            <span className="text-gray-600">{t('payment.simulateFailure')}</span>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={simulateFailure}
-                onChange={(e) => setSimulateFailure(e.target.checked)}
-                className="sr-only peer"
-              />
-              <div className="w-9 h-5 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-red-500" />
-            </label>
-          </div>
-
-          {/* Failed Alert */}
-          {paymentStatus === 'failed' && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800 space-y-1">
-              <div className="flex items-center gap-1.5 font-bold">
-                <AlertTriangle size={16} className="text-red-600" />
-                <span>{t('payment.failed')}</span>
-              </div>
-              <p>Demo payment failed as requested. Uncheck the failure toggle and retry.</p>
+              <button
+                type="button"
+                onClick={handleRazorpay}
+                disabled={paymentStatus === 'processing'}
+                className="py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm transition-all"
+              >
+                Open Razorpay
+              </button>
             </div>
-          )}
 
-          <div className="flex gap-3">
-            <button onClick={handleBack} disabled={paymentStatus === 'processing'} className="btn-secondary flex-1">
-              {t('ride.back')}
-            </button>
-            <button
-              onClick={handlePay}
-              disabled={paymentStatus === 'processing'}
-              className="btn-primary flex-1 flex items-center justify-center gap-2"
-            >
-              {paymentStatus === 'processing' ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>{t('payment.processing')}</span>
-                </>
-              ) : (
-                <span>
-                  {t('payment.pay')} ₹{totalFare.toLocaleString('en-IN')}
-                </span>
-              )}
-            </button>
+            {/* Quick Demo Instant Simulation */}
+            <div className="card p-3.5 bg-gray-50 border border-gray-200 flex items-center justify-between">
+              <div>
+                <span className="font-bold text-gray-700 text-xs">Quick Simulation</span>
+                <p className="text-[11px] text-gray-400">Instantly test without real money</p>
+              </div>
+              <button
+                type="button"
+                onClick={handlePay}
+                disabled={paymentStatus === 'processing'}
+                className="btn-secondary text-xs py-2 px-3"
+              >
+                Auto-Pass Demo
+              </button>
+            </div>
           </div>
+
+          <button onClick={handleBack} disabled={paymentStatus === 'processing'} className="btn-secondary w-full text-xs py-2.5">
+            ← {t('ride.back')} to Review
+          </button>
         </div>
       )}
 
