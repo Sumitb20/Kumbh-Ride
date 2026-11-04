@@ -38,9 +38,15 @@ export function HomePage() {
           }}
         />
         <div className="relative px-5 pt-8 pb-10 max-w-5xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-amber-200">
-            <Sparkles size={14} className="text-kumbh-yellow" />
-            <span>{t('home.nashikTrimbak')} • {t('home.kumbh2028')}</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-amber-200">
+              <Sparkles size={14} className="text-kumbh-yellow" />
+              <span>{t('home.nashikTrimbak')} • {t('home.kumbh2028')}</span>
+            </div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md text-xs font-bold text-slate-800 shadow-md">
+              <span className="text-[10px] text-gray-500 uppercase tracking-wider font-semibold">By</span>
+              <img src="./buildtek-logo.png" alt="BuildTek Events" className="h-3.5 object-contain" />
+            </div>
           </div>
 
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
@@ -336,6 +342,40 @@ export function HomePage() {
               <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
                 {t('home.travelInfoDesc')}
               </p>
+            </div>
+          </div>
+        </div>
+
+        {/* BuildTek Events Showcase Card */}
+        <div className="card p-6 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-white rounded-3xl shadow-xl border border-slate-700/50 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-700/60">
+            <div className="space-y-0.5">
+              <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest">
+                Official Event & Smart Mobility Partner
+              </span>
+              <h3 className="text-xl font-extrabold text-white">BuildTek Events</h3>
+            </div>
+            <div className="p-2.5 bg-white rounded-xl inline-block self-start sm:self-auto shadow-sm">
+              <img src="./buildtek-logo.png" alt="BuildTek Events" className="h-6 sm:h-7 object-contain" />
+            </div>
+          </div>
+
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            Kumbh Ride is conceptualized and powered by <strong>BuildTek Events</strong> — providing smart transit infrastructure, GPS-monitored fleet allocation, and verified pilgrim accommodation for the Nashik–Trimbakeshwar Simhastha Kumbh Mela 2028.
+          </p>
+
+          <div className="grid grid-cols-3 gap-2 pt-1 text-center">
+            <div className="p-2.5 rounded-xl bg-white/10 backdrop-blur-xs border border-white/10">
+              <span className="text-base font-extrabold text-amber-300 block">24x7</span>
+              <span className="text-[10px] text-slate-300">Transit Support</span>
+            </div>
+            <div className="p-2.5 rounded-xl bg-white/10 backdrop-blur-xs border border-white/10">
+              <span className="text-base font-extrabold text-amber-300 block">100%</span>
+              <span className="text-[10px] text-slate-300">Verified Stays</span>
+            </div>
+            <div className="p-2.5 rounded-xl bg-white/10 backdrop-blur-xs border border-white/10">
+              <span className="text-base font-extrabold text-amber-300 block">GPS</span>
+              <span className="text-[10px] text-slate-300">Monitored Fleet</span>
             </div>
           </div>
         </div>

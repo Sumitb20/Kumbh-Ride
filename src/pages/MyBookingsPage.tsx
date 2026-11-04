@@ -369,8 +369,13 @@ const MyBookingsPage: React.FC = () => {
               {expandedTicket === booking.id && (
                 <div className="mt-4 pt-4 border-t border-dashed border-gray-200 animate-fade-in">
                   <div className="bg-kumbh-cream rounded-2xl p-5 flex flex-col items-center text-center">
-                    <div className="px-3 py-1 bg-orange-100 text-kumbh-deep rounded-full text-xs font-bold mb-3">
-                      Official Boarding Pass
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="px-3 py-1 bg-orange-100 text-kumbh-deep rounded-full text-xs font-bold">
+                        Official Boarding Pass
+                      </div>
+                      <div className="bg-white px-2 py-0.5 rounded-full border border-orange-200 shadow-xs">
+                        <img src="./buildtek-logo.png" alt="BuildTek Events" className="h-3.5 object-contain" />
+                      </div>
                     </div>
 
                     <h3 className="text-base font-bold text-kumbh-text mb-1">

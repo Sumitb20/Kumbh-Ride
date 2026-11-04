@@ -24,8 +24,16 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-orange-100">
       <div className="max-w-5xl mx-auto flex items-center justify-between px-4 h-14">
-        <button onClick={() => navigate('/')} className="flex items-center gap-1">
+        <button onClick={() => navigate('/')} className="flex items-center gap-2">
           <Logo size="sm" />
+          <div className="flex items-center gap-1 pl-1.5 sm:gap-1.5 sm:pl-2 border-l border-gray-200">
+            <span className="text-[9px] uppercase font-bold tracking-wider text-gray-400">By</span>
+            <img
+              src="./buildtek-logo.png"
+              alt="BuildTek Events"
+              className="h-3.5 sm:h-5 object-contain max-w-[85px] sm:max-w-none"
+            />
+          </div>
         </button>
 
         <div className="flex items-center gap-2">

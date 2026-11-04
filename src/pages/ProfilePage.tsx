@@ -470,6 +470,17 @@ const ProfilePage: React.FC = () => {
                 <p className="text-sm text-gray-600 leading-relaxed mb-3">
                   {t('profile.aboutText')}
                 </p>
+
+                <div className="my-3 p-3 bg-white rounded-2xl border border-purple-100 shadow-xs flex flex-col items-center gap-1.5">
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-gray-400">
+                    Official Event & Mobility Partner
+                  </span>
+                  <img src="./buildtek-logo.png" alt="BuildTek Events" className="h-6 object-contain" />
+                  <p className="text-[11px] text-gray-500">
+                    Smart Event Infrastructure & Pilgrim Mobility
+                  </p>
+                </div>
+
                 <span className="inline-block text-xs text-gray-400 bg-white px-3 py-1 rounded-full">
                   {t('profile.version')}
                 </span>

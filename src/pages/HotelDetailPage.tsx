@@ -528,6 +528,10 @@ export function HotelDetailPage() {
               <QRCodeSVG value={confirmedBooking.bookingRef} size={130} />
             </div>
             <p className="text-[11px] text-gray-500">Present this QR upon arrival at reception</p>
+            <div className="pt-1 flex items-center justify-center gap-1.5 opacity-75">
+              <span className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Hospitality Managed by</span>
+              <img src="./buildtek-logo.png" alt="BuildTek Events" className="h-3.5 object-contain" />
+            </div>
           </div>
 
           <div className="flex gap-2">

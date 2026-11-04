@@ -800,16 +800,21 @@ export function RideBookingPage() {
             {/* Ticket Header */}
             <div className="bg-gradient-to-r from-kumbh-orange to-kumbh-deep text-white p-4 flex items-center justify-between">
               <div>
-                <span className="text-xs font-semibold tracking-wider uppercase opacity-80">
-                  Kumbh Ride Boarding Pass
+                <span className="text-xs font-semibold tracking-wider uppercase opacity-90 flex items-center gap-1.5">
+                  <span>Kumbh Ride Boarding Pass</span>
                 </span>
                 <p className="text-lg font-mono font-extrabold tracking-wider mt-0.5">
                   {confirmedBooking.bookingRef}
                 </p>
               </div>
-              <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-white/20 text-white border border-white/30">
-                CONFIRMED
-              </span>
+              <div className="flex flex-col items-end gap-1.5">
+                <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-white/20 text-white border border-white/30">
+                  CONFIRMED
+                </span>
+                <div className="bg-white/95 px-2 py-0.5 rounded shadow-xs">
+                  <img src="./buildtek-logo.png" alt="BuildTek Events" className="h-3.5 object-contain" />
+                </div>
+              </div>
             </div>
 
             {/* Ticket Body */}
@@ -872,6 +877,10 @@ export function RideBookingPage() {
                   <QRCodeSVG value={confirmedBooking.bookingRef} size={140} />
                 </div>
                 <p className="text-[11px] text-gray-500">{t('confirm.qrNote')}</p>
+                <div className="pt-1 flex items-center justify-center gap-1.5 opacity-75">
+                  <span className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Organized by</span>
+                  <img src="./buildtek-logo.png" alt="BuildTek Events" className="h-3.5 object-contain" />
+                </div>
               </div>
             </div>
           </div>
