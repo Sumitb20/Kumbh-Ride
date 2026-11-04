@@ -890,3 +890,4 @@ export function RideBookingPage() {
     </div>
   );
 }
+

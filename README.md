@@ -114,3 +114,4 @@ npm run preview
 
 ## 📄 License
 MIT License. Created for the Nashik–Trimbakeshwar Simhastha Kumbh Mela 2028 demonstration.
+
