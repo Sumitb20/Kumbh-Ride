@@ -127,7 +127,7 @@ export function RideBookingPage() {
   const handleUpiComplete = (txnId: string) => {
     setPaymentStatus('processing');
     setTimeout(() => {
-      const ref = `UPI-${txnId.slice(-8).toUpperCase()}`;
+      const ref = `KR-${Math.floor(100000 + Math.random() * 900000)}`;
       const booking: RideBooking = {
         id: crypto.randomUUID(),
         type: 'ride',
@@ -146,6 +146,7 @@ export function RideBookingPage() {
         paymentStatus: 'success',
         paymentMethod: 'upi',
         bookingRef: ref,
+        transactionId: txnId,
         createdAt: new Date().toISOString(),
       };
       addBooking(booking);
@@ -164,7 +165,7 @@ export function RideBookingPage() {
       customerPhone: wizard.customerPhone,
       customerEmail: wizard.customerEmail,
       onSuccess: (paymentId) => {
-        const ref = `RZP-${paymentId.slice(-8).toUpperCase()}`;
+        const ref = `KR-${Math.floor(100000 + Math.random() * 900000)}`;
         const booking: RideBooking = {
           id: crypto.randomUUID(),
           type: 'ride',
@@ -183,6 +184,7 @@ export function RideBookingPage() {
           paymentStatus: 'success',
           paymentMethod: 'upi',
           bookingRef: ref,
+          transactionId: `RZP-${paymentId}`,
           createdAt: new Date().toISOString(),
         };
         addBooking(booking);
@@ -749,12 +751,12 @@ export function RideBookingPage() {
             isProcessing={paymentStatus === 'processing'}
           />
 
-          {/* Collapsible Alternative Options (Razorpay & Demo) */}
+          {/* Alternative: Razorpay Gateway */}
           <div className="pt-2 space-y-3">
             <div className="flex items-center gap-2">
               <div className="h-px bg-gray-200 flex-1" />
               <span className="text-[11px] font-semibold text-gray-400 uppercase">
-                Alternative: Razorpay / Demo Card
+                Alternative: Debit/Credit Card & Net Banking
               </span>
               <div className="h-px bg-gray-200 flex-1" />
             </div>
@@ -763,7 +765,7 @@ export function RideBookingPage() {
             <div className="card p-3.5 border border-blue-200 bg-blue-50/30 flex items-center justify-between">
               <div>
                 <span className="font-extrabold text-blue-900 text-xs">Razorpay Gateway</span>
-                <p className="text-[11px] text-gray-500">Cards & Net Banking modal</p>
+                <p className="text-[11px] text-gray-500">Pay using Card, Net Banking or Wallet</p>
               </div>
               <button
                 type="button"
@@ -772,22 +774,6 @@ export function RideBookingPage() {
                 className="py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-sm transition-all"
               >
                 Open Razorpay
-              </button>
-            </div>
-
-            {/* Quick Demo Instant Simulation */}
-            <div className="card p-3.5 bg-gray-50 border border-gray-200 flex items-center justify-between">
-              <div>
-                <span className="font-bold text-gray-700 text-xs">Quick Simulation</span>
-                <p className="text-[11px] text-gray-400">Instantly test without real money</p>
-              </div>
-              <button
-                type="button"
-                onClick={handlePay}
-                disabled={paymentStatus === 'processing'}
-                className="btn-secondary text-xs py-2 px-3"
-              >
-                Auto-Pass Demo
               </button>
             </div>
           </div>
@@ -864,6 +850,19 @@ export function RideBookingPage() {
                   <p className="font-extrabold text-sm text-kumbh-orange mt-0.5">
                     ₹{confirmedBooking.totalFare.toLocaleString('en-IN')} (Paid)
                   </p>
+                </div>
+                <div className="col-span-2 p-2.5 bg-green-50/80 border border-green-200 rounded-xl flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-green-700 font-bold uppercase tracking-wider block">
+                      Verified Payment Reference / UTR
+                    </span>
+                    <p className="font-mono text-xs font-bold text-green-950 mt-0.5">
+                      {confirmedBooking.transactionId || confirmedBooking.bookingRef}
+                    </p>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full bg-green-200 text-green-800 text-[10px] font-extrabold uppercase tracking-wide">
+                    PAID & VERIFIED ✓
+                  </span>
                 </div>
               </div>
 

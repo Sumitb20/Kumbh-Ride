@@ -267,9 +267,14 @@ const MyBookingsPage: React.FC = () => {
                     </span>
                   </div>
 
-                  {/* Booking Ref */}
-                  <div className="text-xs text-gray-400 font-mono">
-                    {t('bookings.ref')}: {booking.bookingRef}
+                  {/* Booking Ref & Payment */}
+                  <div className="flex items-center justify-between text-xs text-gray-500 font-mono">
+                    <span>{t('bookings.ref')}: {booking.bookingRef}</span>
+                    {booking.transactionId && (
+                      <span className="text-green-700 bg-green-50 px-2 py-0.5 rounded font-bold">
+                        {booking.transactionId}
+                      </span>
+                    )}
                   </div>
                 </div>
               )}
@@ -320,9 +325,14 @@ const MyBookingsPage: React.FC = () => {
                     </span>
                   </div>
 
-                  {/* Booking Ref */}
-                  <div className="text-xs text-gray-400 font-mono">
-                    {t('bookings.ref')}: {booking.bookingRef}
+                  {/* Booking Ref & Payment */}
+                  <div className="flex items-center justify-between text-xs text-gray-500 font-mono">
+                    <span>{t('bookings.ref')}: {booking.bookingRef}</span>
+                    {booking.transactionId && (
+                      <span className="text-green-700 bg-green-50 px-2 py-0.5 rounded font-bold">
+                        {booking.transactionId}
+                      </span>
+                    )}
                   </div>
                 </div>
               )}

@@ -94,6 +94,7 @@ export interface RideBooking {
   paymentStatus: PaymentStatus;
   paymentMethod: PaymentMethod;
   bookingRef: string;
+  transactionId?: string;
   createdAt: string;
 }
 
@@ -115,6 +116,7 @@ export interface HotelBooking {
   paymentStatus: PaymentStatus;
   paymentMethod: PaymentMethod;
   bookingRef: string;
+  transactionId?: string;
   createdAt: string;
 }
 
