@@ -275,7 +275,7 @@ export function RideBookingPage() {
                   }`}
                 >
                   <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
-                    <span className="badge-demo">{t('home.roundTrip')}</span>
+                    <span className="badge-official">{t('home.roundTrip')}</span>
                     <span>{route.distance} • {route.duration}</span>
                   </div>
 
@@ -663,7 +663,7 @@ export function RideBookingPage() {
         <div className="space-y-4 animate-fade-in">
           <div>
             <h2 className="text-xl font-bold text-kumbh-text">{t('ride.reviewBooking')}</h2>
-            <p className="text-xs text-gray-500">Please verify your booking details before demo payment</p>
+            <p className="text-xs text-gray-500">Please verify your booking details before payment</p>
           </div>
 
           <div className="card p-5 space-y-4">
@@ -737,8 +737,8 @@ export function RideBookingPage() {
               <h2 className="text-xl font-bold text-kumbh-text">{t('payment.title')}</h2>
               <p className="text-xs text-gray-500">Pay via Google Pay, PhonePe, Paytm or UPI QR</p>
             </div>
-            <span className="badge-demo text-[10px] bg-green-100 text-green-800 border-green-200">
-              REAL UPI LIVE
+            <span className="badge-official text-[10px] bg-green-100 text-green-800 border-green-200 font-bold">
+              OFFICIAL UPI LIVE
             </span>
           </div>
 
@@ -807,7 +807,7 @@ export function RideBookingPage() {
                   {confirmedBooking.bookingRef}
                 </p>
               </div>
-              <span className="badge-demo bg-white/20 text-white border-white/30">
+              <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-white/20 text-white border border-white/30">
                 CONFIRMED
               </span>
             </div>

@@ -209,7 +209,6 @@ export function HotelDetailPage() {
           <ArrowLeft size={16} />
           <span>{t('ride.back')}</span>
         </button>
-        <span className="badge-demo text-[10px]">{t('hotel.demoNotice')}</span>
       </div>
 
       {/* Hero Image Gallery */}

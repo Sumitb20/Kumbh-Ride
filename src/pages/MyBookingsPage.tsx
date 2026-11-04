@@ -369,7 +369,9 @@ const MyBookingsPage: React.FC = () => {
               {expandedTicket === booking.id && (
                 <div className="mt-4 pt-4 border-t border-dashed border-gray-200 animate-fade-in">
                   <div className="bg-kumbh-cream rounded-2xl p-5 flex flex-col items-center text-center">
-                    <div className="badge-demo mb-3">{t('bookings.demoTicket')}</div>
+                    <div className="px-3 py-1 bg-orange-100 text-kumbh-deep rounded-full text-xs font-bold mb-3">
+                      Official Boarding Pass
+                    </div>
 
                     <h3 className="text-base font-bold text-kumbh-text mb-1">
                       {isRideBooking(booking)

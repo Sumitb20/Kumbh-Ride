@@ -44,17 +44,12 @@ export function HotelDiscoveryPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-4 space-y-5">
-      {/* Page Title & Demo Notice */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <div>
-          <h1 className="text-2xl font-extrabold text-kumbh-text">{t('hotel.title')}</h1>
-          <p className="text-xs text-gray-500">
-            Dharamshalas, ashrams & hotels near Nashik & Trimbakeshwar ghats
-          </p>
-        </div>
-        <div>
-          <span className="badge-demo text-[11px]">{t('hotel.demoNotice')}</span>
-        </div>
+      {/* Page Title */}
+      <div>
+        <h1 className="text-2xl font-extrabold text-kumbh-text">{t('hotel.title')}</h1>
+        <p className="text-xs text-gray-500">
+          Dharamshalas, ashrams & hotels near Nashik & Trimbakeshwar ghats
+        </p>
       </div>
 
       {/* Search Bar */}

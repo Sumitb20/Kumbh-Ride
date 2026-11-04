@@ -171,10 +171,7 @@ const ProfilePage: React.FC = () => {
           /* View Mode */
           <>
             <h2 className="text-xl font-bold text-kumbh-text">
-              {profile.name}{' '}
-              <span className="text-sm font-normal text-gray-400">
-                ({t('profile.demoUser')})
-              </span>
+              {profile.name}
             </h2>
             <div className="flex items-center gap-1.5 text-sm text-gray-500 mt-1">
               <Phone size={14} />

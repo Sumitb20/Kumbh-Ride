@@ -82,7 +82,7 @@ export function HomePage() {
               <div className="w-12 h-12 rounded-2xl bg-orange-100 text-kumbh-deep flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
                 <Car size={24} />
               </div>
-              <span className="badge-demo">{t('home.roundTrip')}</span>
+              <span className="badge-official">{t('home.roundTrip')}</span>
             </div>
             <h3 className="text-lg font-bold text-kumbh-text group-hover:text-kumbh-orange transition-colors">
               {t('home.bookRide')}
@@ -104,7 +104,7 @@ export function HomePage() {
               <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
                 <Building2 size={24} />
               </div>
-              <span className="badge-demo">Dharamshala & Hotel</span>
+              <span className="badge-official">Dharamshala & Hotel</span>
             </div>
             <h3 className="text-lg font-bold text-kumbh-text group-hover:text-kumbh-orange transition-colors">
               {t('home.findStay')}
@@ -149,7 +149,7 @@ export function HomePage() {
                     <span className="flex items-center gap-1">
                       <Clock size={13} /> {route.duration}
                     </span>
-                    <span className="badge-demo">{t('home.roundTrip')}</span>
+                    <span className="badge-official">{t('home.roundTrip')}</span>
                   </div>
 
                   <div className="flex items-center gap-2 font-bold text-base text-kumbh-text">
@@ -352,18 +352,11 @@ export function HomePage() {
             </div>
           </div>
           <button
-            onClick={() => alert('Demo Support: Call +91 98765 43210 or email support@kumbhride.in')}
+            onClick={() => alert('Kumbh Ride 24x7 Helpline: Call +91 98765 43210 or email support@kumbhride.in')}
             className="btn-secondary text-xs py-2 px-4 whitespace-nowrap self-stretch sm:self-auto text-center"
           >
             {t('home.contactUs')}
           </button>
-        </div>
-
-        {/* Demo Disclaimer */}
-        <div className="text-center pb-2">
-          <span className="badge-demo text-[11px]">
-            {t('home.demoNotice')}
-          </span>
         </div>
       </div>
     </div>
