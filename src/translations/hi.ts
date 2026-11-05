@@ -27,7 +27,7 @@ const hi: TranslationDict = {
   'home.step2Title': 'वाहन और तारीख चुनें',
   'home.step2Desc': 'बाइक टैक्सी या AC कार चुनें, यात्रा तारीख सेट करें',
   'home.step3Title': 'पुष्टि करें और यात्रा करें',
-  'home.step3Desc': 'किराया देखें, बुकिंग कन्फर्म करें और आगमन पर भुगतान करें',
+  'home.step3Desc': 'किराया देखें, सुरक्षित ऑनलाइन भुगतान करें, और ई-टिकट पाएं',
   'home.feature1': 'सत्यापित ड्राइवर',
   'home.feature1Desc': 'सभी ड्राइवर सत्यापित और तीर्थयात्री सुरक्षा के लिए प्रशिक्षित',
   'home.feature2': 'निश्चित मूल्य',
@@ -129,7 +129,7 @@ const hi: TranslationDict = {
   // Payment
   'payment.title': 'भुगतान',
   'payment.selectMethod': 'भुगतान विधि चुनें',
-  'payment.upi': 'UPI (GPay / PhonePe)',
+  'payment.upi': 'रेज़रपे चेकआउट',
   'payment.card': 'डेबिट / क्रेडिट कार्ड',
   'payment.netBanking': 'नेट बैंकिंग',
   'payment.pay': 'भुगतान करें',
@@ -142,7 +142,7 @@ const hi: TranslationDict = {
   'payment.totalAmount': 'कुल राशि',
   'payment.bookingRef': 'बुकिंग संदर्भ',
   'payment.demoCard': 'कार्ड द्वारा भुगतान',
-  'payment.demoUPI': 'यूपीआई भुगतान',
+  'payment.demoUPI': 'ऑनलाइन भुगतान',
 
   // Confirmation
   'confirm.title': 'बुकिंग पुष्ट!',

@@ -27,7 +27,7 @@ const en: TranslationDict = {
   'home.step2Title': 'Pick Vehicle & Date',
   'home.step2Desc': 'Choose bike taxi or AC car, set your travel date',
   'home.step3Title': 'Confirm & Ride',
-  'home.step3Desc': 'Review fare, confirm booking, and pay on arrival',
+  'home.step3Desc': 'Review fare, pay securely online, and get your e-ticket',
   'home.feature1': 'Verified Drivers',
   'home.feature1Desc': 'All drivers are verified and trained for pilgrim safety',
   'home.feature2': 'Fixed Prices',
@@ -129,7 +129,7 @@ const en: TranslationDict = {
   // Payment
   'payment.title': 'Payment',
   'payment.selectMethod': 'Select Payment Method',
-  'payment.upi': 'UPI (GPay / PhonePe)',
+  'payment.upi': 'Razorpay Checkout',
   'payment.card': 'Debit / Credit Card',
   'payment.netBanking': 'Net Banking',
   'payment.pay': 'Pay',
@@ -142,7 +142,7 @@ const en: TranslationDict = {
   'payment.totalAmount': 'Total Amount',
   'payment.bookingRef': 'Booking Reference',
   'payment.demoCard': 'Card Payment',
-  'payment.demoUPI': 'UPI Payment',
+  'payment.demoUPI': 'Online Payment',
 
   // Confirmation
   'confirm.title': 'Booking Confirmed!',

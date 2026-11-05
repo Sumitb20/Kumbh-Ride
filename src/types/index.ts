@@ -3,7 +3,7 @@ export type VehicleType = 'two-wheeler' | 'four-wheeler';
 export type Language = 'en' | 'hi' | 'mr';
 export type BookingType = 'ride' | 'hotel';
 export type BookingStatus = 'upcoming' | 'completed' | 'cancelled';
-export type PaymentMethod = 'cash' | 'pay_on_arrival' | 'upi' | 'card' | 'netbanking';
+export type PaymentMethod = 'card' | 'netbanking' | 'wallet';
 export type PaymentStatus = 'pending' | 'success' | 'failed';
 
 export interface Vehicle {

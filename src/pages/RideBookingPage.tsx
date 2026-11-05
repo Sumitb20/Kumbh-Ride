@@ -10,11 +10,8 @@ import {
   Users,
   CheckCircle2,
   AlertTriangle,
-  QrCode,
-  ShieldCheck,
   CreditCard,
-  Smartphone,
-  Building,
+  ShieldCheck,
   RotateCcw,
   Sparkles,
   Download,
@@ -35,6 +32,7 @@ import {
 } from '../data/routesData';
 import { isShahiSnanDate, getShahiSnanName, shahiSnanDates } from '../data/shahiSnanDates';
 import { RideWizardState, RideBooking, PaymentMethod } from '../types';
+import { openRazorpayCheckout } from '../services/razorpay';
 
 export function RideBookingPage() {
   const { lang, t } = useLanguage();
@@ -55,9 +53,9 @@ export function RideBookingPage() {
     customerEmail: 'yatri@kumbhride.in',
   });
 
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success' | 'failed'>('idle');
-  const [simulateFailure, setSimulateFailure] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
   const [confirmedBooking, setConfirmedBooking] = useState<RideBooking | null>(null);
 
   const selectedRoute = routes.find((r) => r.id === wizard.routeId) || routes[0];
@@ -89,33 +87,55 @@ export function RideBookingPage() {
 
   const handlePay = () => {
     setPaymentStatus('processing');
-    setTimeout(() => {
-      const ref = `KR-${Math.floor(100000 + Math.random() * 900000)}`;
-      const booking: RideBooking = {
-        id: crypto.randomUUID(),
-        type: 'ride',
-        routeId: wizard.routeId,
-        vehicleId: wizard.vehicleId,
-        journeyDate: wizard.journeyDate,
-        pickupTime: wizard.pickupTime,
-        returnTime: wizard.returnTime,
-        passengers: wizard.passengers,
-        vehiclesNeeded,
-        customerName: wizard.customerName,
-        customerPhone: wizard.customerPhone,
-        customerEmail: wizard.customerEmail,
-        totalFare,
-        status: 'upcoming',
-        paymentStatus: 'pending',
-        paymentMethod: 'cash',
-        bookingRef: ref,
-        createdAt: new Date().toISOString(),
-      };
-      addBooking(booking);
-      setConfirmedBooking(booking);
-      setPaymentStatus('success');
-      setStep(9);
-    }, 600);
+    setPaymentError(null);
+
+    openRazorpayCheckout({
+      amount: totalFare,
+      description: `Kumbh Ride — ${getRouteName(selectedRoute, lang).from} ↔ ${getRouteName(selectedRoute, lang).to}`,
+      customerName: wizard.customerName,
+      customerEmail: wizard.customerEmail,
+      customerPhone: wizard.customerPhone,
+      notes: {
+        route: `${getRouteName(selectedRoute, lang).from} to ${getRouteName(selectedRoute, lang).to}`,
+        date: wizard.journeyDate,
+        passengers: String(wizard.passengers),
+      },
+      onSuccess: (paymentId: string) => {
+        const ref = `KR-${Math.floor(100000 + Math.random() * 900000)}`;
+        const booking: RideBooking = {
+          id: crypto.randomUUID(),
+          type: 'ride',
+          routeId: wizard.routeId,
+          vehicleId: wizard.vehicleId,
+          journeyDate: wizard.journeyDate,
+          pickupTime: wizard.pickupTime,
+          returnTime: wizard.returnTime,
+          passengers: wizard.passengers,
+          vehiclesNeeded,
+          customerName: wizard.customerName,
+          customerPhone: wizard.customerPhone,
+          customerEmail: wizard.customerEmail,
+          totalFare,
+          status: 'upcoming',
+          paymentStatus: 'success',
+          paymentMethod: 'card',
+          bookingRef: ref,
+          transactionId: paymentId,
+          createdAt: new Date().toISOString(),
+        };
+        addBooking(booking);
+        setConfirmedBooking(booking);
+        setPaymentStatus('success');
+        setStep(9);
+      },
+      onFailure: (error: string) => {
+        setPaymentStatus('failed');
+        setPaymentError(error);
+      },
+      onDismiss: () => {
+        setPaymentStatus('idle');
+      },
+    });
   };
 
   const stepTitles = [
@@ -645,16 +665,17 @@ export function RideBookingPage() {
         </div>
       )}
 
-      {/* STEP 8: Confirm & Pay on Boarding */}
+      {/* STEP 8: Razorpay Payment */}
       {step === 8 && (
         <div className="space-y-4 animate-fade-in">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-bold text-kumbh-text">Confirm Booking</h2>
-              <p className="text-xs text-gray-500">Pay on boarding / cash at vehicle pickup</p>
+              <h2 className="text-xl font-bold text-kumbh-text">{t('ride.payment')}</h2>
+              <p className="text-xs text-gray-500">Secure payment via Razorpay</p>
             </div>
-            <span className="badge-official text-[10px] bg-green-100 text-green-800 border-green-200 font-bold">
-              PAY ON BOARDING
+            <span className="badge-official text-[10px] bg-green-100 text-green-800 border-green-200 font-bold flex items-center gap-1">
+              <ShieldCheck size={12} />
+              SECURE
             </span>
           </div>
 
@@ -669,16 +690,16 @@ export function RideBookingPage() {
             </p>
           </div>
 
-          {/* Pay on Arrival Info Card */}
+          {/* Payment Info Card */}
           <div className="card p-4 border border-orange-200 bg-white space-y-3">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-green-100 text-green-700 flex items-center justify-center flex-shrink-0">
-                <CheckCircle2 size={20} />
+              <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0">
+                <CreditCard size={20} />
               </div>
               <div className="space-y-1">
-                <p className="font-bold text-sm text-kumbh-text">Pay on Boarding / Cash to Driver</p>
+                <p className="font-bold text-sm text-kumbh-text">Pay via Razorpay</p>
                 <p className="text-xs text-gray-600 leading-relaxed">
-                  No advance online payment required. Your seat is confirmed immediately. Present your digital ticket QR and pay ₹{totalFare.toLocaleString('en-IN')} in cash when boarding your vehicle.
+                  Pay securely using Razorpay's trusted payment gateway. Supports Credit/Debit Cards, Net Banking, and Wallets.
                 </p>
               </div>
             </div>
@@ -705,6 +726,17 @@ export function RideBookingPage() {
             </div>
           </div>
 
+          {/* Payment Error */}
+          {paymentStatus === 'failed' && paymentError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs flex items-start gap-2 animate-slide-up">
+              <AlertTriangle size={16} className="text-red-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-bold text-red-800">Payment Failed</p>
+                <p className="text-red-700 mt-0.5">{paymentError}</p>
+              </div>
+            </div>
+          )}
+
           <div className="flex gap-3 pt-2">
             <button onClick={handleBack} disabled={paymentStatus === 'processing'} className="btn-secondary flex-1">
               ← {t('ride.back')}
@@ -715,11 +747,11 @@ export function RideBookingPage() {
               className="btn-primary flex-1 flex items-center justify-center gap-2"
             >
               {paymentStatus === 'processing' ? (
-                <span>Confirming Booking...</span>
+                <span>Processing...</span>
               ) : (
                 <>
-                  <span>Confirm Ride Booking</span>
-                  <ArrowRight size={18} />
+                  <CreditCard size={18} />
+                  <span>Pay ₹{totalFare.toLocaleString('en-IN')}</span>
                 </>
               )}
             </button>
@@ -796,20 +828,25 @@ export function RideBookingPage() {
                 <div>
                   <span className="text-gray-400 block">{t('confirm.fare')}</span>
                   <p className="font-extrabold text-sm text-kumbh-orange mt-0.5">
-                    ₹{confirmedBooking.totalFare.toLocaleString('en-IN')} (Pay on Boarding)
+                    ₹{confirmedBooking.totalFare.toLocaleString('en-IN')} (PAID ✓)
                   </p>
                 </div>
-                <div className="col-span-2 p-2.5 bg-amber-50/80 border border-amber-200 rounded-xl flex items-center justify-between">
+                <div className="col-span-2 p-2.5 bg-green-50/80 border border-green-200 rounded-xl flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] text-amber-700 font-bold uppercase tracking-wider block">
-                      Payment Mode
+                    <span className="text-[10px] text-green-700 font-bold uppercase tracking-wider block">
+                      Payment Status
                     </span>
-                    <p className="text-xs font-bold text-amber-950 mt-0.5">
-                      Pay on Boarding / Cash to Driver
+                    <p className="text-xs font-bold text-green-950 mt-0.5">
+                      PAID & VERIFIED ✓ via Razorpay
                     </p>
+                    {confirmedBooking.transactionId && (
+                      <p className="text-[10px] text-green-700 font-mono mt-0.5">
+                        Txn: {confirmedBooking.transactionId}
+                      </p>
+                    )}
                   </div>
-                  <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-[10px] font-extrabold uppercase tracking-wide">
-                    ₹{confirmedBooking.totalFare.toLocaleString('en-IN')} Due
+                  <span className="px-2.5 py-1 rounded-full bg-green-100 text-green-800 text-[10px] font-extrabold uppercase tracking-wide">
+                    PAID
                   </span>
                 </div>
               </div>

@@ -7,9 +7,8 @@ import {
   CheckCircle2,
   Users,
   Calendar,
-  Building,
   CreditCard,
-  Smartphone,
+  ShieldCheck,
   Download,
   AlertTriangle,
   Sparkles,
@@ -26,6 +25,7 @@ import {
   getAmenityName,
 } from '../data/hotelsData';
 import { HotelBooking, PaymentMethod } from '../types';
+import { openRazorpayCheckout } from '../services/razorpay';
 
 export function HotelDetailPage() {
   const { hotelId } = useParams<{ hotelId: string }>();
@@ -45,9 +45,9 @@ export function HotelDetailPage() {
   const [customerEmail, setCustomerEmail] = useState('yatri@kumbhride.in');
 
   const [isBookingOpen, setIsBookingOpen] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('pay_on_arrival');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
   const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success' | 'failed'>('idle');
-  const [simulateFailure, setSimulateFailure] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
   const [confirmedBooking, setConfirmedBooking] = useState<HotelBooking | null>(null);
 
   if (!hotel) {
@@ -78,10 +78,22 @@ export function HotelDetailPage() {
     }
 
     setPaymentStatus('processing');
-    setTimeout(() => {
-      if (simulateFailure) {
-        setPaymentStatus('failed');
-      } else {
+    setPaymentError(null);
+
+    openRazorpayCheckout({
+      amount: totalAmount,
+      description: `Hotel Booking — ${getHotelName(hotel, lang)} (${getRoomName(selectedRoom, lang)})`,
+      customerName,
+      customerEmail,
+      customerPhone,
+      notes: {
+        hotel: getHotelName(hotel, lang),
+        room: getRoomName(selectedRoom, lang),
+        checkIn,
+        checkOut,
+        guests: String(guests),
+      },
+      onSuccess: (paymentId: string) => {
         const ref = generateBookingRef('hotel');
         const booking: HotelBooking = {
           id: crypto.randomUUID(),
@@ -99,50 +111,23 @@ export function HotelDetailPage() {
           totalFare: totalAmount,
           status: 'upcoming',
           paymentStatus: 'success',
-          paymentMethod,
+          paymentMethod: 'card',
           bookingRef: ref,
+          transactionId: paymentId,
           createdAt: new Date().toISOString(),
         };
         addBooking(booking);
         setConfirmedBooking(booking);
         setPaymentStatus('success');
-      }
-    }, 1500);
-  };
-
-  const handleConfirmBooking = () => {
-    if (!customerName.trim() || !customerPhone.trim()) {
-      alert('Please enter your name and phone number');
-      return;
-    }
-
-    setPaymentStatus('processing');
-    setTimeout(() => {
-      const ref = `KR-${Math.floor(100000 + Math.random() * 900000)}`;
-      const booking: HotelBooking = {
-        id: crypto.randomUUID(),
-        type: 'hotel',
-        hotelId: hotel.id,
-        roomId: selectedRoom.id,
-        checkIn,
-        checkOut,
-        guests,
-        rooms: roomsCount,
-        nights,
-        customerName,
-        customerPhone,
-        customerEmail,
-        totalFare: totalAmount,
-        status: 'upcoming',
-        paymentStatus: 'pending',
-        paymentMethod: 'pay_on_arrival',
-        bookingRef: ref,
-        createdAt: new Date().toISOString(),
-      };
-      addBooking(booking);
-      setConfirmedBooking(booking);
-      setPaymentStatus('success');
-    }, 600);
+      },
+      onFailure: (error: string) => {
+        setPaymentStatus('failed');
+        setPaymentError(error);
+      },
+      onDismiss: () => {
+        setPaymentStatus('idle');
+      },
+    });
   };
 
   return (
@@ -375,30 +360,41 @@ export function HotelDetailPage() {
             </div>
           </div>
 
-          {/* Pay on Arrival Notice & Confirmation Button */}
+          {/* Razorpay Payment Section */}
           <div className="pt-3 border-t border-gray-100 space-y-3">
-            <div className="p-3 bg-amber-50/70 border border-amber-200 rounded-xl text-xs flex items-start gap-2.5">
-              <span className="text-amber-600 font-bold text-sm">ℹ</span>
+            <div className="p-3 bg-blue-50/70 border border-blue-200 rounded-xl text-xs flex items-start gap-2.5">
+              <ShieldCheck size={16} className="text-blue-600 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="font-bold text-amber-950">Pay at Hotel on Check-in</p>
-                <p className="text-amber-800 text-[11px] leading-relaxed">
-                  No advance online payment required. Pay ₹{totalAmount.toLocaleString('en-IN')} directly at the reception counter upon arrival.
+                <p className="font-bold text-blue-950">Secure Payment via Razorpay</p>
+                <p className="text-blue-800 text-[11px] leading-relaxed">
+                  Pay ₹{totalAmount.toLocaleString('en-IN')} securely via Razorpay payment gateway (Cards, Net Banking, Wallets).
                 </p>
               </div>
             </div>
 
+            {/* Payment Error */}
+            {paymentStatus === 'failed' && paymentError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs flex items-start gap-2 animate-slide-up">
+                <AlertTriangle size={16} className="text-red-500 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-red-800">Payment Failed</p>
+                  <p className="text-red-700 mt-0.5">{paymentError}</p>
+                </div>
+              </div>
+            )}
+
             <button
               type="button"
-              onClick={handleConfirmBooking}
+              onClick={handlePay}
               disabled={paymentStatus === 'processing'}
               className="btn-primary w-full py-3 text-sm font-bold flex items-center justify-center gap-2 shadow-md"
             >
               {paymentStatus === 'processing' ? (
-                <span>Confirming Reservation...</span>
+                <span>Processing Payment...</span>
               ) : (
                 <>
-                  <span>Confirm Hotel Booking</span>
-                  <CheckCircle2 size={18} />
+                  <CreditCard size={18} />
+                  <span>Pay ₹{totalAmount.toLocaleString('en-IN')}</span>
                 </>
               )}
             </button>
@@ -445,20 +441,25 @@ export function HotelDetailPage() {
             <div className="flex justify-between pt-2 border-t border-orange-200 font-bold">
               <span>{t('confirm.fare')}:</span>
               <span className="text-kumbh-orange text-sm">
-                ₹{confirmedBooking.totalFare.toLocaleString('en-IN')} (Pay on Check-in)
+                ₹{confirmedBooking.totalFare.toLocaleString('en-IN')} (PAID ✓)
               </span>
             </div>
-            <div className="p-2.5 bg-amber-50/80 border border-amber-200 rounded-xl flex items-center justify-between">
+            <div className="p-2.5 bg-green-50/80 border border-green-200 rounded-xl flex items-center justify-between">
               <div>
-                <span className="text-[10px] text-amber-700 font-bold uppercase tracking-wider block">
-                  Payment Mode
+                <span className="text-[10px] text-green-700 font-bold uppercase tracking-wider block">
+                  Payment Status
                 </span>
-                <p className="text-xs font-bold text-amber-950 mt-0.5">
-                  Pay at Hotel on Check-in (Cash / Counter)
+                <p className="text-xs font-bold text-green-950 mt-0.5">
+                  PAID & VERIFIED ✓ via Razorpay
                 </p>
+                {confirmedBooking.transactionId && (
+                  <p className="text-[10px] text-green-700 font-mono mt-0.5">
+                    Txn: {confirmedBooking.transactionId}
+                  </p>
+                )}
               </div>
-              <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-[10px] font-extrabold uppercase tracking-wide">
-                ₹{confirmedBooking.totalFare.toLocaleString('en-IN')} Due
+              <span className="px-2.5 py-1 rounded-full bg-green-100 text-green-800 text-[10px] font-extrabold uppercase tracking-wide">
+                PAID
               </span>
             </div>
           </div>
